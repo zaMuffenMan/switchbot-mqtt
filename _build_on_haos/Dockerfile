@@ -27,4 +27,5 @@ RUN apk add --upgrade --no-cache bash ca-certificates-bundle libgcc libssl3 libs
 
 COPY --from=builder /app /app
 WORKDIR /app
+ENV DOTNET_GCRegionRange=10000000
 ENTRYPOINT ["./SwitchBotMqttApp"]
