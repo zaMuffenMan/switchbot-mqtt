@@ -5,6 +5,7 @@ public class UserConfigOptions
     public MqttConfigOptions Mqtt { get; set; } = new();
     public SwitchBotConfigOptions SwitchBot { get; set; } = new();
     public WebhookConfigOptions WebhookService { get; set; } = new();
+    public CommonConfigOptions Common { get; set; } = new();
 }
 
 public class MqttConfigOptions
@@ -29,4 +30,10 @@ public class WebhookConfigOptions
     public bool UseNgrok { get; set; } = false;
     public string NgrokAuthToken { get; set; } = string.Empty;
     public string HostUrl { get; set; } = string.Empty;
+}
+
+public class CommonConfigOptions
+{
+    public bool AutoStartServices { get; set; } = false;
+    public bool DeviceStatePersistence { get; set; } = false;
 }

@@ -32,18 +32,19 @@ public class Program
         // Register as singleton
         builder.Services.AddSingleton<UserConfigManager>();
 
-        var config = builder.Configuration.Get<HomeAssistantAddOn.Core.CommonOptions>();
-        builder.Logging
-            .Configure(options =>
+        builder.Services.AddOptions<Configurations.CommonOptions>()
+            .Configure<IConfiguration>((settings, configuration) =>
             {
-                options.ActivityTrackingOptions = ActivityTrackingOptions.None;
-            })
-            .AddFilter("SwitchBotMqttApp", config!.LogLevel)
-            .AddSimpleConsole(options =>
-            {
-                options.IncludeScopes = false;
-                options.SingleLine = true;
-                options.TimestampFormat = "HH:mm:ss ";
+                // Bind from appsettings.json first
+                configuration.Bind(settings);
+
+                // Override with user config if available
+                var userConfig = configuration.GetSection("Common").Get<Configurations.CommonOptions>();
+                if (userConfig != null)
+                {
+                    settings.AutoStartServices = userConfig.AutoStartServices;
+                    settings.DeviceStatePersistence = userConfig.DeviceStatePersistence;
+                }
             });
         // Add services to the container.
         builder.Services.AddControllers();

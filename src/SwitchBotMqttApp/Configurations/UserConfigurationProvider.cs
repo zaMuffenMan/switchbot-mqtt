@@ -49,6 +49,8 @@ public class UserConfigurationProvider : ConfigurationProvider
                 Data["WebhookService:UseNgrok"] = config.WebhookService.UseNgrok.ToString().ToLowerInvariant();
                 Data["WebhookService:NgrokAuthToken"] = config.WebhookService.NgrokAuthToken ?? string.Empty;
                 Data["WebhookService:HostUrl"] = config.WebhookService.HostUrl ?? string.Empty;
+                Data["AutoStartServices"] = config.Common.AutoStartServices.ToString().ToLowerInvariant();
+                Data["DeviceStatePersistence"] = config.Common.DeviceStatePersistence.ToString().ToLowerInvariant();
             }
         }
         catch (Exception ex)
