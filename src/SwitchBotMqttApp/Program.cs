@@ -96,6 +96,18 @@ public class Program
 
         builder.Services.AddHomeAssistantMqtt();
 
+        builder.Services.AddOptions<SwitchBotOptions>()
+            .Configure<IConfiguration>((settings, configuration) =>
+            {
+                configuration.GetSection("SwitchBot").Bind(settings);
+            });
+
+        builder.Services.AddOptions<MqttOptions>()
+            .Configure<IConfiguration>((settings, configuration) =>
+            {
+                configuration.GetSection("Mqtt").Bind(settings);
+            });
+
         builder.WebHost.UseWebRoot("wwwroot");
         builder.WebHost.UseStaticWebAssets();
 

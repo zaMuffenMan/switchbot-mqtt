@@ -237,6 +237,11 @@ public class SwitchBotApiClient
     /// <returns>Configured HTTP request message with authentication headers.</returns>
     private HttpRequestMessage CreateSwitchBotRequest(HttpMethod method, string requestUri)
     {
+        if (string.IsNullOrWhiteSpace(_switchBotOptions.Value.ApiKey) || string.IsNullOrWhiteSpace(_switchBotOptions.Value.ApiSecret))
+        {
+            throw new InvalidOperationException("SwitchBot API key or secret is not configured.");
+        }
+
         try
         {
             HttpRequestMessage requestMessage = new(method, requestUri);

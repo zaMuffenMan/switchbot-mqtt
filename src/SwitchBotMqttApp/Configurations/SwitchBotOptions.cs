@@ -20,5 +20,5 @@ public class SwitchBotOptions
     /// <summary>
     /// Gets or sets the base URL for SwitchBot Cloud API (default: https://api.switch-bot.com/v1.1/).
     /// </summary>
-    public string ApiBaseUrl { get; set; } = default!;
+    public string ApiBaseUrl { get; set; } = "https://api.switch-bot.com/v1.1/";
 }

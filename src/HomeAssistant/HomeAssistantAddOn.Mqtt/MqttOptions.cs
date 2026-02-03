@@ -10,7 +10,7 @@ public class MqttOptions
     /// Gets or sets a value indicating whether to auto-configure MQTT settings from Home Assistant Supervisor.
     /// When true, MQTT connection details are retrieved from Supervisor API.
     /// </summary>
-    public bool AutoConfig { get; set; } = true;
+    public bool AutoConfig { get; set; } = false;
 
     /// <summary>
     /// Gets or sets the MQTT broker host address.

@@ -93,8 +93,8 @@ public class MqttCoreService(
     /// <returns>A task representing the asynchronous operation.</returns>
     public override async Task StopAsync(CancellationToken cancellationToken = default)
     {
-        await _mqttService.StopAsync();
-        _logger.LogInformation("stopped");
+        await mqttService.StopAsync();
+        logger.LogInformation("stopped");
         Status = ServiceStatus.Stopped;
         CommandPayloadDictionary.Clear();
     }
