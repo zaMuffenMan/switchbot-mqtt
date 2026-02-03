@@ -28,7 +28,7 @@
                 @{
                     (bool canStart, bool canStop) = service.Status switch
                     {
-                        ManagedServiceBase.ServiceStatus.Stoped => (true, false),
+                        ManagedServiceBase.ServiceStatus.Stopped => (true, false),
                         ManagedServiceBase.ServiceStatus.Initial => (true, false),
                         ManagedServiceBase.ServiceStatus.Started => (false, true),
                         ManagedServiceBase.ServiceStatus.Starting => (false, false),

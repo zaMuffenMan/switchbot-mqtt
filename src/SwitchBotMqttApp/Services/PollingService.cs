@@ -64,8 +64,8 @@ public class PollingService(
             pollingTimer.Stop();
         }
         pollingTimers.Clear();
-        logger.LogInformation("stopped");
-        Status = ServiceStatus.Stoped;
+        _logger.LogInformation("stopped");
+        Status = ServiceStatus.Stopped;
         return Task.CompletedTask;
     }
 }

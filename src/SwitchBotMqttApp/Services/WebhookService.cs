@@ -130,7 +130,7 @@ public class WebhookService : ManagedServiceBase
                 webhookUrl = null;
             }
             _logger.LogInformation("stopped");
-            Status = ServiceStatus.Stoped;
+            Status = ServiceStatus.Stopped;
         }
         catch (Exception ex)
         {

@@ -1,0 +1,209 @@
+@page "/settings"
+@using SwitchBotMqttApp.Configurations
+@using SwitchBotMqttApp.Services
+@inject UserConfigManager UserConfigManager
+@inject ILogger<Settings> Logger
+
+<PageTitle>Application Settings</PageTitle>
+
+<div class="container mt-3">
+    <h3>Application Settings</h3>
+
+    @if (!string.IsNullOrEmpty(_message))
+    {
+        <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @_message
+            <button type="button" class="btn-close" @onclick="() => _message = string.Empty"></button>
+        </div>
+    }
+
+    <EditForm Model="@_model" OnValidSubmit="SaveSettings">
+        <DataAnnotationsValidator />
+
+        <!-- MQTT Configuration Section -->
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">MQTT Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Host</label>
+                        <InputText @bind-Value="_model.Mqtt.Host" class="form-control"
+                            placeholder="e.g., 10.0.0.13" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Port</label>
+                        <InputNumber @bind-Value="_model.Mqtt.Port" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Use TLS</label>
+                        <div class="form-check form-switch mt-2">
+                            <InputCheckbox @bind-Value="_model.Mqtt.Tls" class="form-check-input" id="mqttTls" />
+                            <label class="form-check-label" for="mqttTls">Enabled</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Username (Id)</label>
+                        <InputText @bind-Value="_model.Mqtt.Id" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Password</label>
+                        <InputText @bind-Value="_model.Mqtt.Pw" type="password" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Use Auto Config</label>
+                        <div class="form-check form-switch">
+                            <InputCheckbox @bind-Value="_model.Mqtt.UseAutoConfig" class="form-check-input"
+                                id="mqttAutoConfig" />
+                            <label class="form-check-label" for="mqttAutoConfig">Enabled</label>
+                        </div>
+                        <small class="form-text text-muted">Auto-configure from Home Assistant Supervisor</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SwitchBot Configuration Section -->
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">SwitchBot API Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">API Key</label>
+                    <InputText @bind-Value="_model.SwitchBot.ApiKey" class="form-control"
+                        placeholder="Enter your SwitchBot API Key" />
+                    <small class="form-text text-muted">Get your API key from the SwitchBot app</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">API Secret</label>
+                    <InputText @bind-Value="_model.SwitchBot.ApiSecret" type="password" class="form-control"
+                        placeholder="Enter your SwitchBot API Secret" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Webhook Configuration Section -->
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Webhook Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Use Webhook</label>
+                        <div class="form-check form-switch">
+                            <InputCheckbox @bind-Value="_model.WebhookService.UseWebhook" class="form-check-input"
+                                id="useWebhook" />
+                            <label class="form-check-label" for="useWebhook">Enabled</label>
+                        </div>
+                        <small class="form-text text-muted">Enable webhook for real-time device updates</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Use Ngrok</label>
+                        <div class="form-check form-switch">
+                            <InputCheckbox @bind-Value="_model.WebhookService.UseNgrok" class="form-check-input"
+                                id="useNgrok" />
+                            <label class="form-check-label" for="useNgrok">Enabled</label>
+                        </div>
+                        <small class="form-text text-muted">Use Ngrok for tunnel (required if no public URL)</small>
+                    </div>
+                </div>
+
+                @if (_model.WebhookService.UseNgrok)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Ngrok Auth Token</label>
+                        <InputText @bind-Value="_model.WebhookService.NgrokAuthToken" type="password"
+                            class="form-control" placeholder="Enter your Ngrok auth token" />
+                        <small class="form-text text-muted">Get your auth token from
+                            <a href="https://dashboard.ngrok.com/get-started/your-authtoken" target="_blank">ngrok.com</a>
+                        </small>
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Host URL</label>
+                        <InputText @bind-Value="_model.WebhookService.HostUrl" class="form-control"
+                            placeholder="https://your-domain.com" />
+                        <small class="form-text text-muted">Your public URL where SwitchBot can send webhooks</small>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" disabled="@_saving">
+                @if (_saving)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                }
+                Save Settings
+            </button>
+            <button type="button" class="btn btn-secondary" @onclick="LoadSettings" disabled="@_saving">
+                Reset
+            </button>
+        </div>
+    </EditForm>
+
+    <div class="alert alert-warning mt-4" role="alert">
+        <strong>Note:</strong> After saving settings, you may need to restart the application for changes to take
+        effect.
+    </div>
+</div>
+
+@code {
+    private UserConfigOptions _model = new();
+    private bool _saving = false;
+    private string _message = string.Empty;
+    private bool _isError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSettings();
+    }
+
+    private async Task LoadSettings()
+    {
+        try
+        {
+            _model = await UserConfigManager.GetConfigAsync();
+            _message = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading settings");
+            _message = "Error loading settings";
+            _isError = true;
+        }
+    }
+
+    private async Task SaveSettings()
+    {
+        _saving = true;
+        _message = string.Empty;
+
+        try
+        {
+            await UserConfigManager.SaveConfigAsync(_model);
+            _message = "Settings saved successfully! Please restart the application for changes to take effect.";
+            _isError = false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error saving settings");
+            _message = $"Error saving settings: {ex.Message}";
+            _isError = true;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

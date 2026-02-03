@@ -37,7 +37,7 @@ public abstract class ManagedServiceBase : IHostedService
         /// <summary>Service has started successfully and is running.</summary>
         Started,
         /// <summary>Service has been stopped.</summary>
-        Stoped,
+        Stopped,
         /// <summary>Service failed to start or encountered an error.</summary>
         Failed,
         /// <summary>Service is disabled and will not start.</summary>

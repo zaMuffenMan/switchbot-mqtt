@@ -2,12 +2,13 @@ using Blazored.Modal;
 using FluffySpoon.Ngrok;
 using HomeAssistantAddOn.Core;
 using Microsoft.AspNetCore.DataProtection;
+using HomeAssistantAddOn.Mqtt;
 using Microsoft.AspNetCore.HttpOverrides;
 using SwitchBotMqttApp.Components;
+using Microsoft.Extensions.Configuration;
 using SwitchBotMqttApp.Configurations;
 using SwitchBotMqttApp.Logics;
 using SwitchBotMqttApp.Services;
-using System.Net;
 using System.Net.Http.Headers;
 using static HomeAssistantAddOn.Mqtt.SupervisorApi;
 
@@ -24,6 +25,12 @@ public class Program
             serverOptions.ListenAnyIP(8099);//ForWebUI
         });
         builder.Configuration.AddHomeAssistantAddOnConfig();
+
+        var userConfigPath = Path.Combine(HomeAssistantAddOn.Core.Utility.GetBaseDataDirectory(), "user_config.json");
+        builder.Configuration.AddUserConfiguration(userConfigPath);
+
+        // Register as singleton
+        builder.Services.AddSingleton<UserConfigManager>();
 
         var config = builder.Configuration.Get<HomeAssistantAddOn.Core.CommonOptions>();
         builder.Logging
@@ -49,40 +56,22 @@ public class Program
             {
                 configuration.Bind(settings);
             });
-        builder.Services.AddOptions<SwitchBotOptions>().
-            Configure<IConfiguration>((settings, configuration) =>
-            {
-                configuration.GetSection("SwitchBot").Bind(settings);
-            });
         builder.Services.AddOptions<EnforceDeviceTypeOptions>().
             Configure<IConfiguration>((settings, configuration) =>
             {
                 configuration.GetSection("EnforceDeviceTypes").Bind(settings);
             });
-        builder.Services.AddOptions<WebhookServiceOptions>().
-            Configure<IConfiguration>((settings, configuration) =>
-            {
-                configuration.GetSection("WebhookService").Bind(settings);
-            });
-        builder.Services.AddOptions<MessageRetainOptions>().
-            Configure<IConfiguration>((settings, configuration) =>
-            {
-                configuration.GetSection("MessageRetain").Bind(settings);
-            });
+
 
         builder.Services.AddSingleton<DeviceConfigurationManager>();
         builder.Services.AddSingleton<DeviceDefinitionsManager>();
         builder.Services.AddSingleton<DeviceStatePersistanceManager>();
         builder.Services.AddSingleton<SwitchBotApiClient>();
+        builder.Services.AddSingleton<AppSettingsManager>();
         builder.Services.AddHttpContextAccessor();
 
 #if DEBUG
-        builder.Services.AddHttpClient(nameof(SwitchBotApiClient))
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                Proxy = new WebProxy("localhost", 8888)
-            });
-        //builder.Services.AddHttpClient(nameof(SwitchBotApiClient));
+        builder.Services.AddHttpClient(nameof(SwitchBotApiClient));
 #else
         builder.Services.AddHttpClient(nameof(SwitchBotApiClient));
 #endif
