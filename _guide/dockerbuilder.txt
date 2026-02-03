@@ -1,0 +1,16 @@
+# Build the Docker image locally
+docker build -t switchbot-mqtt:latest .
+
+# Tag the image for ACR
+docker tag switchbot-mqtt:latest myContainerRegistry.azurecr.io/switchbot-mqtt:latest
+docker tag switchbot-mqtt:latest myContainerRegistry.azurecr.io/switchbot-mqtt:v1.0.0
+
+# Push to ACR
+docker push myContainerRegistry.azurecr.io/switchbot-mqtt:latest
+docker push myContainerRegistry.azurecr.io/switchbot-mqtt:v1.0.0
+
+# List images in your registry
+az acr repository list --name myContainerRegistry --output table
+
+# Show tags for your image
+az acr repository show-tags --name myContainerRegistry --repository switchbot-mqtt --output table
